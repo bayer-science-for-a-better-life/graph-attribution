@@ -104,7 +104,8 @@ class RegresionTaskType(AttributionTaskType):
         values = [('R2', sklearn.metrics.r2_score(y_true, y_pred)),
                   ('RMSE', att_metrics.rmse(y_true, y_pred)),
                   ('tau', att_metrics.kendall_tau_score(y_true, y_pred)),
-                  ('r', att_metrics.pearson_r_score(y_true, y_pred))]
+                  #('r', att_metrics.pearson_r_score(y_true, y_pred)),
+                  ]
         return collections.OrderedDict(values)
 
     def preprocess_attributions(self,

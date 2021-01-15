@@ -125,16 +125,17 @@ class GNN(snt.Module, templates.TransparentModel):
         return task_index, batch_index
 
     @tf.function(experimental_relax_shapes=True)
-    def get_graph_embedding(self, x: GraphsTuple) -> tf.Tensor:
+    def get_graph_embedding(self, x: GraphsTuple) -> Tuple[tf.Tensor, tf.Tensor]:
         """Build a graph embedding."""
-        out_graph = self.readout(self.gnn(self.encode(x)))
-        return models.get_graph_attribute(out_graph, self.target_type)
+        representations = self.gnn(self.encode(x))
+        out_graph = self.readout(representations)
+        return models.get_graph_attribute(out_graph, self.target_type), representations
 
     def __call__(self, x: GraphsTuple) -> tf.Tensor:
         """Typical forward pass for the model."""
-        graph_emb = self.get_graph_embedding(x)
+        graph_emb, representations = self.get_graph_embedding(x)
         y = self.pred_layer(graph_emb)
-        return y
+        return y, representations
 
     def predict(self,
                 x: GraphsTuple,
@@ -143,7 +144,8 @@ class GNN(snt.Module, templates.TransparentModel):
         """Forward pass with output set on the task of interest (y[batch_index, task_index])."""
         task_index, batch_index = self.cast_task_batch_index(
             task_index, batch_index)
-        return self(x)[batch_index, task_index]
+        y, _ = self(x)
+        return y[batch_index, task_index]
 
     @tf.function(experimental_relax_shapes=True)
     def get_gradient(self,
