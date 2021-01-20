@@ -146,6 +146,63 @@ class GradInput(AttributionTechnique):
         return list(graph_utils.split_graphs_tuple(graphs))
 
 
+class TopRep(AttributionTechnique):
+    """Attribution based on the most relevent representation
+
+      TopRep(x) = node_activations[argmax(abs(w*gap))]
+    """
+
+#    def __init__(self, name: Optional[Text] = None):
+#        self.name = name or self.__class__.__name__
+#        self.sample_size = 1
+#
+#    def attribute(self,
+#                  x,
+#                  model: TransparentModel,
+#                  task_index: Optional[int] = None,
+#                  batch_index: Optional[int] = None) -> List[GraphsTuple]:
+#        """Gets attribtutions."""
+#        node_act, edge_act = model.get_gap_activations(x)
+#        weights = model.get_prediction_weights()
+#        gap_results, _ = model.get_graph_embedding(x)
+#
+#        relevency = tf.abs(gap_results * weights)
+#        maxed_weights = tf.where(
+#            tf.equal(tf.reduce_max(relevency, axis=1, keepdims=True), relevency),
+#            tf.constant(1.0, shape=relevency.shape),
+#            tf.constant(0.0, shape=relevency.shape)
+#        )
+#        node_weights = tf.einsum('ij,j', node_act, maxed_weights)
+#        graphs = x.replace(
+#            nodes=node_weights,
+#            globals=None)
+#        return list(graph_utils.split_graphs_tuple(graphs))
+    def __init__(self, name: Optional[Text] = None):
+        self.name = name or self.__class__.__name__
+        self.sample_size = 1
+
+    def attribute(self,
+                  x,
+                  model: TransparentModel,
+                  task_index: Optional[int] = None,
+                  batch_index: Optional[int] = None) -> List[GraphsTuple]:
+        """Gets attribtutions."""
+        node_act, edge_act = model.get_gap_activations(x)
+        weights = model.get_prediction_weights()
+        maxed_weights = tf.where(
+            tf.equal(tf.reduce_max(weights, axis=0, keepdims=True), weights),
+            tf.constant(1.0, shape=weights.shape),
+            tf.constant(0.0, shape=weights.shape)
+        )
+        node_weights = tf.einsum('ij,j', node_act, maxed_weights)
+        edge_weights = tf.einsum('ij,j', edge_act, maxed_weights)
+        graphs = x.replace(
+            nodes=node_weights,
+            edges=edge_weights,
+            globals=None)
+        return list(graph_utils.split_graphs_tuple(graphs))
+
+
 class CAM(AttributionTechnique):
     """CAM: Decompose output as a linear sum of nodes and edges.
 
@@ -414,6 +471,7 @@ def get_techniques_dict(
         methods.append(IntegratedGradients(200, ref_fn, name='IG'))
     if use_gap_readout:
         methods.append(CAM(name='CAM'))
+        methods.append(TopRep(name='TopRep'))
     if use_attention:
         methods.append(AttentionWeights())
     methods = collections.OrderedDict([(m.name, m) for m in methods])
