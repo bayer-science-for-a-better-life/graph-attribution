@@ -151,32 +151,6 @@ class TopRep(AttributionTechnique):
 
       TopRep(x) = node_activations[argmax(abs(w*gap))]
     """
-
-#    def __init__(self, name: Optional[Text] = None):
-#        self.name = name or self.__class__.__name__
-#        self.sample_size = 1
-#
-#    def attribute(self,
-#                  x,
-#                  model: TransparentModel,
-#                  task_index: Optional[int] = None,
-#                  batch_index: Optional[int] = None) -> List[GraphsTuple]:
-#        """Gets attribtutions."""
-#        node_act, edge_act = model.get_gap_activations(x)
-#        weights = model.get_prediction_weights()
-#        gap_results, _ = model.get_graph_embedding(x)
-#
-#        relevency = tf.abs(gap_results * weights)
-#        maxed_weights = tf.where(
-#            tf.equal(tf.reduce_max(relevency, axis=1, keepdims=True), relevency),
-#            tf.constant(1.0, shape=relevency.shape),
-#            tf.constant(0.0, shape=relevency.shape)
-#        )
-#        node_weights = tf.einsum('ij,j', node_act, maxed_weights)
-#        graphs = x.replace(
-#            nodes=node_weights,
-#            globals=None)
-#        return list(graph_utils.split_graphs_tuple(graphs))
     def __init__(self, name: Optional[Text] = None):
         self.name = name or self.__class__.__name__
         self.sample_size = 1
