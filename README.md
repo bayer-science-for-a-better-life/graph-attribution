@@ -1,3 +1,6 @@
+Theses are our modifications to [_Evaluating Attribution for Graph Neural Networks_](https://papers.nips.cc/paper/2020/hash/417fbbf2e9d5a28a855a11894b2e795a-Abstract.html), corresponding to our paper[_Improving Molecular Graph Neural Network Explainability with Orthonormalization and Induced Sparsity_](https://arxiv.org/abs/2105.04854).
+Most importantly, the notebook `notebooks/orth_gini_train_attribute_and_evaluate.ipynb` contains the modifications needed to recreate the experiments in Section 4.1 of the paper.
+
 # Codebase for [_Evaluating Attribution for Graph Neural Networks_](https://papers.nips.cc/paper/2020/hash/417fbbf2e9d5a28a855a11894b2e795a-Abstract.html).
 
 ![Schematic figure](media/TOC.png)
